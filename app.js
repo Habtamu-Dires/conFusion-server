@@ -7,6 +7,7 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
 var authenticate = require('./authenticate');
+var config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -16,7 +17,7 @@ var leaderRouter = require('./routes/leaderRouter');
 
 const mongoose = require('mongoose');
 
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then((db)=>{
@@ -33,42 +34,15 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser('12345-67890-09876-54321')); //secret key
-app.use(session({
-  name:'session-id',
-  secret: '12345-67890-09876-54321',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore()
-}));  //this will add req.session in the request 
+
 
 app.use(passport.initialize());
-app.use(passport.session());  //request with cookies this deserilize and add req.user to the request
-                              //passport.authenticate() will serilize and add it to session
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-function auth (req, res, next) {
-  // after authenticating passport add user property to request object with the user information there
-  // req.user will be loaded wiht passport.session()
-  if(!req.user){
-      
-      var err = new Error('You are not authenticated!');
-      
-      err.status = 403;
-      return next(err);  ///this will take to the error handler where the error handler construct 
-                      // cosntruct the replay and send back to the client
-      
-  
-  } else { //singned cookie already exist
-       next(); // pass
-      }
-  }
-  
-
-//authenticate
-app.use(auth);
-
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
