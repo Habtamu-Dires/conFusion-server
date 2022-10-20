@@ -19,26 +19,38 @@ promoRouter.route('/')
     .catch((err)=>next(err));
 })
 .post(authenticate.verifyUser,(req,res,next)=>{
-    Promos.create(req.body)
-    .then((promo)=>{
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(promo);
-    }, (err)=> next(err))
-    .catch((err)=> next(err));
+    if(authenticate.verifyAdmin(req.user.admin)){
+        Promos.create(req.body)
+        .then((promo)=>{
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(promo);
+        }, (err)=> next(err))
+        .catch((err)=> next(err));
+    } else {
+        err = new Error('You are not authorized');
+        err.status = 403;
+        return next(err);
+    }
 })
 .put(authenticate.verifyUser,(req,res,next)=> {
     res.statusCode = 403;
     res.end('PUT operation not supported on /promotions');
 })
 .delete(authenticate.verifyUser,(req,res,next)=>{
-    Promos.remove({})
-    .then((resp)=>{
-        res.statusCode =200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(resp);
-    }, (err)=> next(err))
-    .catch((err)=>next(err));
+    if(authenticate.verifyAdmin(req.user.admin)){
+        Promos.remove({})
+        .then((resp)=>{
+            res.statusCode =200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(resp);
+        }, (err)=> next(err))
+        .catch((err)=>next(err));
+    } else {
+        err = new Error('You are not authorized');
+        err.status = 403;
+        return next(err);
+    }
 });
 //for /:promoId
 promoRouter.route('/:promoId')
@@ -56,24 +68,36 @@ promoRouter.route('/:promoId')
     res.end('POST operation not supported on /promotions/ ' + req.params.promoId);
 })
 .put(authenticate.verifyUser,(req,res,next)=> {
-    Promos.findByIdAndUpdate(req.params.promoId, {
-        $set: req.body
-    },{new: true})
-    .then((promo)=>{
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(promo);
-    }, (err)=> next(err))
-    .catch((err)=> next(err));
+    if(authenticate.verifyAdmin(req.user.admin)){
+        Promos.findByIdAndUpdate(req.params.promoId, {
+            $set: req.body
+        },{new: true})
+        .then((promo)=>{
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(promo);
+        }, (err)=> next(err))
+        .catch((err)=> next(err));
+    } else {
+        err = new Error('You are not authorized');
+        err.status = 403;
+        return next(err);
+    }
 })
 .delete(authenticate.verifyUser,(req,res,next)=> {
-    Promos.findByIdAndRemove(req.params.promoId)
-    .then((resp)=>{
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(resp);
-    }, (err)=>next(err))
-    .catch((err)=>next(err));
+    if(authenticate.verifyAdmin(req.user.admin)){
+        Promos.findByIdAndRemove(req.params.promoId)
+        .then((resp)=>{
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(resp);
+        }, (err)=>next(err))
+        .catch((err)=>next(err));
+    } else {
+        err = new Error('You are not authorized');
+        err.status = 403;
+        return next(err);
+    }
 });
 
 

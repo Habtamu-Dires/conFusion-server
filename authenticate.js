@@ -42,3 +42,10 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
 }));
 //this one use token come form the req and authenticate --based on the strategy.
 exports.verifyUser = passport.authenticate('jwt', {session: false});
+
+//verifyAdmin
+exports.verifyAdmin = (admin) => {
+    if(admin === true) return true;
+    else return false;
+}
+

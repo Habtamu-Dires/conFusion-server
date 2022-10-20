@@ -9,17 +9,20 @@ var router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.end('send some content with resources');
-  /*
-  User.find({})
-  .then((users)=>{
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json(users);
-  })
-  .catch((err)=> next(err));
-  */
+router.get('/',authenticate.verifyUser,function(req, res, next) {
+  if(authenticate.verifyAdmin(req.user.admin)) {
+    User.find({})
+    .then((users)=>{
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(users);
+    })
+    .catch((err)=> next(err));
+ } else {
+    err = new Error('You are not authorized');
+    err.status = 403;
+    return next(err); 
+ }
 });
 
 router.post('/signup', (req,res,next)=>{
@@ -74,16 +77,23 @@ router.get('/logout',(req,res)=>{
        next(err);
    }
 });
-/*
-router.delete('/del', (req,res,next)=> {
-  User.remove({})
-  .then((resp)=>{
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(resp);
-  }, (err)=> next(err))
-  .catch((err)=>next(err));
+
+router.delete('/',authenticate.verifyUser, (req,res,next)=> {
+  if(authenticate.verifyAdmin(req.user.admin)){
+    User.remove({})
+    .then((resp)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp);
+    }, (err)=> next(err))
+    .catch((err)=>next(err));
+  } else {
+      err = new Error('You are not authorized');
+      err.status = 403;
+      return next(err); 
+  }
+  
 });
-*/
+
 
 module.exports = router;
