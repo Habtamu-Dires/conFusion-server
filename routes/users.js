@@ -9,8 +9,7 @@ var router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.get('/',authenticate.verifyUser,function(req, res, next) {
-  if(authenticate.verifyAdmin(req.user.admin)) {
+router.get('/',authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=> {
     User.find({})
     .then((users)=>{
       res.statusCode = 200;
@@ -18,11 +17,7 @@ router.get('/',authenticate.verifyUser,function(req, res, next) {
       res.json(users);
     })
     .catch((err)=> next(err));
- } else {
-    err = new Error('You are not authorized');
-    err.status = 403;
-    return next(err); 
- }
+ 
 });
 
 router.post('/signup', (req,res,next)=>{
