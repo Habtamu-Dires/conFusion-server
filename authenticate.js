@@ -73,7 +73,7 @@ exports.facebookPassport = passport.use(new FacebookTokenStrategy({
                 user.facebookId = profile.id;
                 user.firstname = profile.name.givenName;
                 user.lastname = profile.name.familyName;
-                user.save((err,user)=>{
+                user.save((err, user)=>{
                     if(err)     
                         return done(err, false);
                     else 
