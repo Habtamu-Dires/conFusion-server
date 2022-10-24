@@ -31,10 +31,15 @@ favoriteRouter.route('/')
                     fav.dishes.push({dish: req.body[i]._id});
                 } 
                 fav.save()
-                .then((favorites)=>{
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(favorites);
+                .then((favorite)=>{
+                    Favorite.findById(favorite._id)
+                    .populate('user')
+                    .populate('dishes.dish')
+                    .then((favorites)=>{
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorites);
+                    })
                 },(err)=> next(err))
             },(err)=> next(err))
         } else {
@@ -46,10 +51,15 @@ favoriteRouter.route('/')
                  }
             }
                 favorite.save()
-                .then((favorites)=>{
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(favorites);
+                .then((favorite)=>{
+                    Favorite.findById(favorite._id)
+                    .populate('user')
+                    .populate('dishes.dish')
+                    .then((favorites)=>{
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorites);
+                    })
                 },(err)=> next(err))
         }
     })
@@ -73,8 +83,28 @@ favoriteRouter.route('/')
 favoriteRouter.route('/:dishId')
 .options(cors.corsWithOptions, (req,res)=>{res.sendStatus(200);})
 .get(cors.cors, authenticate.verifyUser,(req,res,next)=>{
-    res.statusCode = 403;
-    res.end('GET operation not supported on /favorites/ ' + req.params.dishId );
+    Favorite.findOne({user: req.user._id})
+    .then((favorites)=>{
+        if(!favorites){
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            return res.json({"exists": false, "favorites": favorites})
+        } else {
+            if(!favorites.dishes.some(dishs => JSON.stringify(dishs.dish)
+                    ===JSON.stringify(req.params.dishId))) {
+
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    return res.json({"exists": false, "favorites": favorites})
+                }
+                else {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    return res.json({"exists": true, "favorites": favorites})
+                }
+        }
+    }, (err)=> next(err))
+    .catch(err=> next(err));
 })
 .post(cors.cors, authenticate.verifyUser, (req,res,next)=>{
     Favorite.findOne({user: req.user._id})
@@ -85,10 +115,15 @@ favoriteRouter.route('/:dishId')
             .then((fav)=>{
                 fav.dishes.push({dish:req.params.dishId});
                 fav.save()
-                .then((favorites)=>{
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(favorites);
+                .then((favorite)=>{
+                    Favorite.findById(favorite._id)
+                    .populate('user')
+                    .populate('dishes.dish')
+                    .then((favorites)=>{
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorites);
+                    })
                 },(err)=> next(err))
             },(err)=> next(err))
         } else {
@@ -97,10 +132,15 @@ favoriteRouter.route('/:dishId')
                 favorite.dishes.push({dish:req.params.dishId});
                 console.log("hey")
                 favorite.save()
-                .then((favorites)=>{
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(favorites);
+                .then((favorite)=>{
+                    Favorite.findById(favorite._id)
+                    .populate('user')
+                    .populate('dishes.dish')
+                    .then((favorites)=>{
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorites);
+                    })
                 },(err)=> next(err))
             } else {
                 res.statusCode = 200;
@@ -123,10 +163,15 @@ favoriteRouter.route('/:dishId')
         if(favorite != null){
             favorite.dishes = favorite.dishes.filter(e=> JSON.stringify(e.dish) !== JSON.stringify(req.params.dishId));
             favorite.save()
-            .then((favorites)=>{
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(favorites);
+            .then((favorite)=>{
+                Favorite.findById(favorite._id)
+                    .populate('user')
+                    .populate('dishes.dish')
+                    .then((favorites)=>{
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(favorites);
+                    })
             },(err)=> next(err))     
         }else {
             res.end("Nothing to delete");
