@@ -21,39 +21,28 @@ leaderRouter.route('/')
     }, (err) => next(err))
     .catch((err)=> next(err));
 })
-.post(cors.corsWithOptions,authenticate.verifyUser,(req,res,next)=>{
-    if(authenticate.verifyAdmin(req.user.admin)) {
-        Leaders.create(req.body)
-        .then((leader)=>{
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(leader);
-        }, (err)=>next(err))
-        .catch((err)=>next(err));
-    } else {
-        err = new Error('You are not authorized');
-        err.status = 403;
-        return next(err);
-    }
+.post(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin,(req,res,next)=>{
+    Leaders.create(req.body)
+    .then((leader)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(leader);
+    }, (err)=>next(err))
+    .catch((err)=>next(err));
 })
 .put(cors.corsWithOptions,authenticate.verifyUser,(req,res,next)=> {
     res.statusCode = 403;
     res.end('PUT operation not supported on /leaders');
 })
-.delete(cors.corsWithOptions,authenticate.verifyUser,(req,res,next)=>{
-    if(authenticate.verifyAdmin(req.user.admin)){
-        Leaders.remove({})
-        .then((resp)=>{
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(resp);
-        }, (err)=>next(err))
-        .catch((err)=>next(err));
-    } else {
-        err = new Error('You are not authorized');
-        err.status = 403;
-        return next(err);
-    }
+.delete(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin, (req,res,next)=>{
+    Leaders.remove({})
+    .then((resp)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp);
+    }, (err)=>next(err))
+    .catch((err)=>next(err));
+
 });
 //for /:promoId
 leaderRouter.route('/:leaderId')

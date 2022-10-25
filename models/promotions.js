@@ -22,6 +22,10 @@ const promoSchema = new Schema({
         required: true,
         min: 0
     },
+    featured:{
+        type: Boolean,
+        required: true
+    },
     description:{
         type: String,
         required: true

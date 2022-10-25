@@ -11,9 +11,6 @@ const commentRouter = express.Router();
 commentRouter.use(bodyParser.json()); // parse to js object find on req.body
 
 commentRouter.route('/')
-//for comment
-
-commentRouter.route('/')
 .options(cors.corsWithOptions, (req,res)=>{res.sendStatus(200);})
 .get(cors.cors,(req,res,next)=>{
     Comments.find(req.query)
